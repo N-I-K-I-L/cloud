@@ -1,0 +1,343 @@
+{% extends "web/base.html" %}
+{% block title %}Editor | Resume2Portfolio{% endblock %}
+{% block content %}
+<section class="row space-between">
+  <h1>Portfolio Editor</h1>
+  <a class="btn alt" href="/dashboard/">Back to Dashboard</a>
+</section>
+
+<p id="error" class="error"></p>
+<div class="grid2">
+  <section class="card stack">
+    <label for="name">Name</label>
+    <input id="name" placeholder="Full name" />
+    <label for="about">About</label>
+    <textarea id="about" rows="4" placeholder="Short professional summary"></textarea>
+    <label for="skills">Skills</label>
+    <input id="skills" placeholder="Comma separated skills" />
+    <label for="technologies">Technologies</label>
+    <input id="technologies" placeholder="Comma separated technologies/tools" />
+    <label for="projects">Projects</label>
+    <textarea id="projects" rows="5" placeholder="One per line: Title: Description"></textarea>
+    <label for="education">Education</label>
+    <textarea id="education" rows="4" placeholder="One per line: Degree, Institution"></textarea>
+    <label for="work_experience">Work Experience</label>
+    <textarea id="work_experience" rows="4" placeholder="One per line"></textarea>
+    <label for="contact_email">Contact Email</label>
+    <input id="contact_email" placeholder="name@example.com" />
+    <label for="contact_phone">Contact Phone</label>
+    <input id="contact_phone" placeholder="+91-XXXXXXXXXX" />
+    <label for="contact_links">Contact Links</label>
+    <input id="contact_links" placeholder="Comma separated URLs" />
+    <div class="row">
+      <button id="save-btn" class="btn">Save</button>
+      <button id="publish-btn" class="btn alt">Publish</button>
+    </div>
+    <section id="publish-box" class="notice" style="display:none;">
+      <h3>Published URL</h3>
+      <p id="publish-url" class="mono"></p>
+      <button id="copy-url" class="btn">Copy Link</button>
+    </section>
+  </section>
+  <section class="card">
+    <h3>Live Portfolio Preview</h3>
+    <div id="portfolio-preview"></div>
+    <details style="margin-top: 12px;">
+      <summary class="mono" style="cursor: pointer;">Show JSON (debug)</summary>
+      <pre id="preview" class="mono"></pre>
+    </details>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  App.requireAuth();
+  App.updateNav();
+
+  const id = {{ portfolio_id }};
+  const fields = [
+    'name', 'about', 'skills', 'technologies', 'projects', 'education',
+    'work_experience', 'contact_email', 'contact_phone', 'contact_links'
+  ];
+
+  let templateId = 'minimal';
+  const clean = (v) => (v || '').replace(/\(cid:\d+\)/g, '').replace(/\s+/g, ' ').trim();
+  const esc = (v) => String(v || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  function renderMinimalLike(data, mode) {
+    const skills = (data.skills || []).map((s) => esc(s)).join(', ') || 'N/A';
+    const projects = (data.projects || []).map((p) => `
+      <div class="card">
+        <h3>${esc(p.title || p.name || 'Project')}</h3>
+        <p>${esc(p.description || '')}</p>
+      </div>
+    `).join('') || '<p>No projects listed.</p>';
+    const education = (data.education || []).map((e) => `
+      <li>${esc(e.degree || '')}${e.institution ? ` - ${esc(e.institution)}` : ''}</li>
+    `).join('') || '<li>No education details.</li>';
+
+    return `
+      <section class="public ${mode}">
+        <h1>${esc(data.name || '')}</h1>
+        <p>${esc(data.about || '')}</p>
+        <h2>Skills</h2>
+        <p>${skills}</p>
+        <h2>Projects</h2>
+        <div class="stack">${projects}</div>
+        <h2>Education</h2>
+        <ul>${education}</ul>
+        <h2>Contact</h2>
+        <p>Email: ${esc(data.contact?.email || 'N/A')}</p>
+        <p>Phone: ${esc(data.contact?.phone || 'N/A')}</p>
+      </section>
+    `;
+  }
+
+  function renderProfessional(data) {
+    const skills = (data.skills || []).map((s) => `<span class="chip">${esc(s)}</span>`).join('') || '<span class="chip">N/A</span>';
+    const projects = (data.projects || []).map((p) => `
+      <article class="proj-card">
+        <h3>${esc(p.title || p.name || 'Project')}</h3>
+        <p>${esc(p.description || '')}</p>
+      </article>
+    `).join('') || '<p>No project details.</p>';
+    const exp = (data.work_experience || []).map((x) => `
+      <article class="timeline-item">
+        <div class="row space-between">
+          <h3>${esc(x.role || x.position || 'Experience')}</h3>
+          <span class="tag">${esc(x.duration || '')}</span>
+        </div>
+        <p class="accent">${esc(x.company || '')}</p>
+        <p>${esc(x.description || x.role || '')}</p>
+      </article>
+    `).join('') || '<p>No experience details.</p>';
+    const education = (data.education || []).map((e) => `
+      <div class="pro-block">
+        <p class="strong">${esc(e.institution || '')}</p>
+        <p>${esc(e.degree || '')}</p>
+      </div>
+    `).join('') || '<p>No education details.</p>';
+
+    return `
+      <section class="pro-wrap">
+        <aside class="pro-side">
+          <div class="pro-hero">
+            <div class="pro-avatar">${esc((data.name || 'U').slice(0, 1))}</div>
+            <h1>${esc(data.name || '')}</h1>
+            <p>${esc((data.about || '').slice(0, 120))}</p>
+          </div>
+          <section>
+            <h3>Contact</h3>
+            <p><span>Email:</span> ${esc(data.contact?.email || 'N/A')}</p>
+            <p><span>Phone:</span> ${esc(data.contact?.phone || 'N/A')}</p>
+          </section>
+          <section>
+            <h3>Skills</h3>
+            <div class="chip-wrap">${skills}</div>
+          </section>
+          <section>
+            <h3>Education</h3>
+            ${education}
+          </section>
+        </aside>
+        <main class="pro-main">
+          <section>
+            <h2>Experience</h2>
+            ${exp}
+          </section>
+          <section>
+            <h2>Key Projects</h2>
+            <div class="pro-grid">${projects}</div>
+          </section>
+        </main>
+      </section>
+    `;
+  }
+
+  function renderCreative(data) {
+    const skills = (data.skills || []).map((s) => `<span class="chip dark">${esc(s)}</span>`).join('') || '<span class="chip dark">N/A</span>';
+    const projects = (data.projects || []).map((p) => `
+      <article class="creative-card">
+        <h4>${esc(p.title || p.name || 'Project')}</h4>
+        <p>${esc(p.description || '')}</p>
+      </article>
+    `).join('') || '<p>No project details.</p>';
+    const exp = (data.work_experience || []).map((x) => `
+      <article class="creative-item">
+        <div class="row">
+          <h4>${esc(x.company || 'Company')}</h4>
+          <span class="muted">${esc(x.duration || '')}</span>
+        </div>
+        <p class="accent">${esc(x.role || x.position || '')}</p>
+        <p>${esc(x.description || x.role || '')}</p>
+      </article>
+    `).join('') || '<p>No experience details.</p>';
+
+    return `
+      <section class="creative-wrap">
+        <header class="creative-header">
+          <p class="pill">Available for Hire</p>
+          <h1>${esc(data.name || '')}</h1>
+          <p>"${esc((data.about || '').slice(0, 160))}"</p>
+        </header>
+        <div class="creative-grid">
+          <aside class="creative-left">
+            <section>
+              <h3>Expertise</h3>
+              <div class="chip-wrap">${skills}</div>
+            </section>
+            <section>
+              <h3>Base of Operations</h3>
+              <div class="info-box">
+                <p>${esc(data.contact?.email || 'N/A')}</p>
+                <p class="muted">${esc(data.contact?.phone || 'N/A')}</p>
+              </div>
+            </section>
+          </aside>
+          <main class="creative-main">
+            <section>
+              <h3>Journey</h3>
+              ${exp}
+            </section>
+            <section>
+              <h3>Manifestations</h3>
+              <div class="pro-grid">${projects}</div>
+            </section>
+          </main>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderPortfolioPreview(data) {
+    const mode = templateId || 'minimal';
+    if (mode === 'professional') {
+      return renderProfessional(data);
+    }
+    if (mode === 'creative') {
+      return renderCreative(data);
+    }
+    if (mode === 'dark' || mode === 'cards' || mode === 'minimal') {
+      return renderMinimalLike(data, mode);
+    }
+    return renderMinimalLike(data, 'minimal');
+  }
+
+  function normalize(data) {
+    return {
+      name: data.name || '',
+      about: clean(data.about || ''),
+      skills: Array.isArray(data.skills) ? data.skills.map(clean).join(', ') : '',
+      technologies: Array.isArray(data.technologies) ? data.technologies.map(clean).join(', ') : '',
+      projects: Array.isArray(data.projects) ? data.projects.map(p => `${clean(p.title || '')}: ${clean(p.description || '')}`).join('\n') : '',
+      education: Array.isArray(data.education) ? data.education.map(e => `${clean(e.degree || '')}, ${clean(e.institution || '')}`).join('\n') : '',
+      work_experience: Array.isArray(data.work_experience) ? data.work_experience.map(w => clean(w.role || w.description || '')).join('\n') : '',
+      contact_email: clean(data.contact?.email || ''),
+      contact_phone: clean(data.contact?.phone || ''),
+      contact_links: Array.isArray(data.contact?.links) ? data.contact.links.map(clean).join(', ') : '',
+    };
+  }
+
+  function denormalize(form) {
+    return {
+      name: clean(form.name),
+      about: clean(form.about),
+      skills: form.skills.split(',').map(x => clean(x)).filter(Boolean),
+      technologies: form.technologies.split(',').map(x => clean(x)).filter(Boolean),
+      projects: form.projects.split('\n').map(x => x.trim()).filter(Boolean).map(line => {
+        const parts = line.split(':');
+        const title = clean(parts.shift());
+        return { title, description: clean(parts.join(':')) || title };
+      }),
+      education: form.education.split('\n').map(x => x.trim()).filter(Boolean).map(line => {
+        const parts = line.split(',');
+        const degree = clean(parts.shift());
+        return { degree, institution: clean(parts.join(',')) };
+      }),
+      work_experience: form.work_experience.split('\n').map(x => x.trim()).filter(Boolean).map(line => ({ role: clean(line), description: clean(line) })),
+      contact: {
+        email: clean(form.contact_email),
+        phone: clean(form.contact_phone),
+        links: form.contact_links.split(',').map(x => clean(x)).filter(Boolean),
+      },
+    };
+  }
+
+  function readForm() {
+    const out = {};
+    fields.forEach((f) => { out[f] = document.getElementById(f).value; });
+    return out;
+  }
+
+  function fillForm(data) {
+    fields.forEach((f) => { document.getElementById(f).value = data[f] || ''; });
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const data = denormalize(readForm());
+    document.getElementById('portfolio-preview').innerHTML = renderPortfolioPreview(data);
+    document.getElementById('preview').textContent = JSON.stringify(data, null, 2);
+  }
+
+  fields.forEach((f) => document.getElementById(f).addEventListener('input', updatePreview));
+
+  async function save() {
+    const payload = {
+      template_id: templateId,
+      portfolio_data_json: denormalize(readForm()),
+    };
+    return App.patch(`/api/portfolios/${id}/`, payload);
+  }
+
+  async function loadPortfolio() {
+    const error = document.getElementById('error');
+    error.textContent = '';
+    try {
+      const data = await App.get(`/api/portfolios/${id}/`);
+      templateId = data.template_id;
+      fillForm(normalize(data.portfolio_data_json || {}));
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Failed to load portfolio.');
+    }
+  }
+
+  document.getElementById('save-btn').addEventListener('click', async () => {
+    const error = document.getElementById('error');
+    error.textContent = '';
+    try {
+      await save();
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Save failed.');
+    }
+  });
+
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const error = document.getElementById('error');
+    error.textContent = '';
+    try {
+      await save();
+      const res = await App.post(`/api/portfolios/${id}/publish/`, {});
+      document.getElementById('publish-url').textContent = res.public_url;
+      document.getElementById('publish-box').style.display = 'block';
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Publish failed.');
+    }
+  });
+
+  document.getElementById('copy-url').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('publish-url').textContent);
+    } catch {
+      document.getElementById('error').textContent = 'Could not copy link.';
+    }
+  });
+
+  loadPortfolio();
+</script>
+{% endblock %}

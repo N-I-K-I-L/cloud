@@ -1,0 +1,63 @@
+{% extends "web/base.html" %}
+{% block title %}Upload Resume | Resume2Portfolio{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Upload Resume</h1>
+  <form id="upload-form" class="stack">
+    <label for="template_id">Choose Template (used for both PDF and Manual Entry)</label>
+    <select id="template_id">
+      <option value="minimal">Minimal Developer Template</option>
+      <option value="professional">Professional Template</option>
+      <option value="creative">Creative Template</option>
+      <option value="dark">Dark Developer Theme</option>
+      <option value="cards">Modern Card Layout</option>
+    </select>
+
+    <label for="resume">Upload PDF (optional)</label>
+    <input id="resume" type="file" accept="application/pdf" />
+    <p id="error" class="error"></p>
+    <button type="submit" class="btn full">Create from PDF</button>
+    <button type="button" id="manual-btn" class="btn alt full">No PDF? Create Manual Portfolio</button>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  App.requireAuth();
+  App.updateNav();
+
+  document.getElementById('upload-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const error = document.getElementById('error');
+    error.textContent = '';
+
+    try {
+      const fileInput = document.getElementById('resume');
+      if (!fileInput.files || !fileInput.files[0]) {
+        error.textContent = 'Select a PDF or use "No PDF? Enter Manually".';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('resume', fileInput.files[0]);
+      formData.append('template_id', document.getElementById('template_id').value);
+      const created = await App.upload('/api/portfolios/upload/', formData);
+      location.href = `/editor/${created.id}/`;
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Upload failed.');
+    }
+  });
+
+  document.getElementById('manual-btn').addEventListener('click', async () => {
+    const error = document.getElementById('error');
+    error.textContent = '';
+    try {
+      const created = await App.post('/api/portfolios/manual/', {
+        template_id: document.getElementById('template_id').value,
+      });
+      location.href = `/editor/${created.id}/`;
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Could not start manual portfolio.');
+    }
+  });
+</script>
+{% endblock %}

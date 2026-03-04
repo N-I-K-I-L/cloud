@@ -1,0 +1,36 @@
+{% extends "web/base.html" %}
+{% block title %}Register | Resume2Portfolio{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Register</h1>
+  <form id="register-form" class="stack">
+    <input id="username" placeholder="Username" required />
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <p id="error" class="error"></p>
+    <button type="submit" class="btn full">Create Account</button>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  App.updateNav();
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const error = document.getElementById('error');
+    error.textContent = '';
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      await App.post('/api/auth/register/', { username, email, password }, false);
+      const data = await App.post('/api/auth/token/', { username, password }, false);
+      App.setTokens(data.access, data.refresh);
+      location.href = '/dashboard/';
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Registration failed.');
+    }
+  });
+</script>
+{% endblock %}

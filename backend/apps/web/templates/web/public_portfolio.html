@@ -1,0 +1,185 @@
+{% extends "web/base.html" %}
+{% block title %}Portfolio | Resume2Portfolio{% endblock %}
+{% block content %}
+{% if not_found %}
+  <section class="panel">
+    <h1>Portfolio Not Found</h1>
+    <p>No published portfolio found for {{ username }}.</p>
+  </section>
+{% else %}
+  {% if template_id == 'professional' %}
+    <section class="pro-wrap">
+      <aside class="pro-side">
+        <div class="pro-hero">
+          <div class="pro-avatar">{{ template_data.personal_info.full_name|default:username|slice:":1" }}</div>
+          <h1>{{ template_data.personal_info.full_name|default:username }}</h1>
+          <p>{{ template_data.personal_info.title }}</p>
+        </div>
+
+        <section>
+          <h3>Contact</h3>
+          <p><span>Email:</span> {{ template_data.personal_info.email|default:'N/A' }}</p>
+          <p><span>Phone:</span> {{ template_data.personal_info.phone|default:'N/A' }}</p>
+          <p><span>Location:</span> {{ template_data.personal_info.location|default:'N/A' }}</p>
+        </section>
+
+        <section>
+          <h3>Skills</h3>
+          <div class="chip-wrap">
+            {% for skill in template_data.skills %}
+              <span class="chip">{{ skill }}</span>
+            {% empty %}
+              <span class="chip">N/A</span>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section>
+          <h3>Education</h3>
+          {% for edu in template_data.education %}
+            <div class="pro-block">
+              <p class="strong">{{ edu.school }}</p>
+              <p>{{ edu.degree }}</p>
+              <p class="muted">{{ edu.year }}</p>
+            </div>
+          {% empty %}
+            <p>No education details.</p>
+          {% endfor %}
+        </section>
+      </aside>
+
+      <main class="pro-main">
+        <section>
+          <h2>Experience</h2>
+          {% for exp in template_data.experience %}
+            <article class="timeline-item">
+              <div class="row space-between">
+                <h3>{{ exp.position|default:'Experience' }}</h3>
+                <span class="tag">{{ exp.duration }}</span>
+              </div>
+              <p class="accent">{{ exp.company }}</p>
+              <p>{{ exp.description }}</p>
+            </article>
+          {% empty %}
+            <p>No experience details.</p>
+          {% endfor %}
+        </section>
+
+        <section>
+          <h2>Key Projects</h2>
+          <div class="pro-grid">
+            {% for proj in template_data.projects %}
+              <article class="proj-card">
+                <h3>{{ proj.name }}</h3>
+                <p>{{ proj.description }}</p>
+              </article>
+            {% empty %}
+              <p>No project details.</p>
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </section>
+  {% elif template_id == 'creative' %}
+    <section class="creative-wrap">
+      <header class="creative-header">
+        <p class="pill">Available for Hire</p>
+        <h1>{{ template_data.personal_info.full_name|default:username }}</h1>
+        <p>"{{ template_data.personal_info.title }} building the future of digital experiences."</p>
+      </header>
+
+      <div class="creative-grid">
+        <aside class="creative-left">
+          <section>
+            <h3>Expertise</h3>
+            <div class="chip-wrap">
+              {% for skill in template_data.skills %}
+                <span class="chip dark">{{ skill }}</span>
+              {% empty %}
+                <span class="chip dark">N/A</span>
+              {% endfor %}
+            </div>
+          </section>
+          <section>
+            <h3>Base of Operations</h3>
+            <div class="info-box">
+              <p>{{ template_data.personal_info.location|default:'N/A' }}</p>
+              <p class="muted">{{ template_data.personal_info.email|default:'N/A' }}</p>
+            </div>
+          </section>
+        </aside>
+
+        <main class="creative-main">
+          <section>
+            <h3>Journey</h3>
+            {% for exp in template_data.experience %}
+              <article class="creative-item">
+                <div class="row">
+                  <h4>{{ exp.company|default:'Company' }}</h4>
+                  <span class="muted">{{ exp.duration }}</span>
+                </div>
+                <p class="accent">{{ exp.position }}</p>
+                <p>{{ exp.description }}</p>
+              </article>
+            {% empty %}
+              <p>No experience details.</p>
+            {% endfor %}
+          </section>
+
+          <section>
+            <h3>Manifestations</h3>
+            <div class="pro-grid">
+              {% for proj in template_data.projects %}
+                <article class="creative-card">
+                  <h4>{{ proj.name }}</h4>
+                  <p>{{ proj.description }}</p>
+                </article>
+              {% empty %}
+                <p>No project details.</p>
+              {% endfor %}
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+  {% else %}
+    <section class="public {{ template_id|default:'minimal' }}">
+      <h1>{{ data.name|default:username }}</h1>
+      <p>{{ data.about|default:"" }}</p>
+
+      <h2>Skills</h2>
+      <p>
+        {% for skill in data.skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% empty %}N/A{% endfor %}
+      </p>
+
+      <h2>Projects</h2>
+      <div class="stack">
+        {% for project in data.projects %}
+          <div class="card">
+            <h3>{{ project.title|default:project.name }}</h3>
+            <p>{{ project.description }}</p>
+          </div>
+        {% empty %}
+          <p>No projects listed.</p>
+        {% endfor %}
+      </div>
+
+      <h2>Education</h2>
+      <ul>
+        {% for e in data.education %}
+          <li>{{ e.degree }}{% if e.institution %} - {{ e.institution }}{% endif %}</li>
+        {% empty %}
+          <li>No education details.</li>
+        {% endfor %}
+      </ul>
+
+      <h2>Contact</h2>
+      <p>Email: {{ data.contact.email|default:'N/A' }}</p>
+      <p>Phone: {{ data.contact.phone|default:'N/A' }}</p>
+    </section>
+  {% endif %}
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>App.updateNav();</script>
+{% endblock %}

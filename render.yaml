@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: resume-portfolio-generator
+    env: python
+    buildCommand: |
+      pip install -r backend/requirements.txt
+      python backend/manage.py migrate && python backend/manage.py collectstatic --noinput
+    startCommand: gunicorn config.wsgi:application --chdir backend
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://your-service-name.onrender.com"

@@ -1,0 +1,80 @@
+{% extends "web/base.html" %}
+{% block title %}Dashboard | Resume2Portfolio{% endblock %}
+{% block content %}
+<section class="row space-between">
+  <h1>Dashboard</h1>
+  <a class="btn" href="/upload-resume/">Create New Portfolio</a>
+</section>
+
+<section id="publish-box" class="notice" style="display:none;">
+  <h3>Published URL</h3>
+  <p id="publish-url" class="mono"></p>
+  <button id="copy-url" class="btn">Copy Link</button>
+</section>
+
+<p id="error" class="error"></p>
+<div id="portfolio-list" class="stack"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+  App.requireAuth();
+  App.updateNav();
+
+  const list = document.getElementById('portfolio-list');
+  const error = document.getElementById('error');
+  const publishBox = document.getElementById('publish-box');
+  const publishUrl = document.getElementById('publish-url');
+
+  async function loadPortfolios() {
+    error.textContent = '';
+    list.innerHTML = '';
+    try {
+      const items = await App.get('/api/portfolios/');
+      if (!items.length) {
+        list.innerHTML = '<p>No portfolios yet. Upload a resume to start.</p>';
+        return;
+      }
+      items.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <p><strong>Template:</strong> ${item.template_id}</p>
+          <p><strong>Last Modified:</strong> ${new Date(item.updated_at).toLocaleString()}</p>
+          <p><strong>Status:</strong> ${item.is_published ? 'Published' : 'Draft'}</p>
+          <div class="row">
+            <a class="btn" href="/editor/${item.id}/">Edit</a>
+            <a class="btn alt" href="/portfolio/${item.username}/" target="_blank">View</a>
+            ${!item.is_published ? `<button class="btn publish-btn" data-id="${item.id}">Publish</button>` : ''}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      document.querySelectorAll('.publish-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          try {
+            const res = await App.post(`/api/portfolios/${btn.dataset.id}/publish/`, {});
+            publishUrl.textContent = res.public_url;
+            publishBox.style.display = 'block';
+            await loadPortfolios();
+          } catch (err) {
+            error.textContent = App.errorMessage(err, 'Failed to publish portfolio.');
+          }
+        });
+      });
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Failed to load portfolios.');
+    }
+  }
+
+  document.getElementById('copy-url').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(publishUrl.textContent);
+    } catch {
+      error.textContent = 'Could not copy link.';
+    }
+  });
+
+  loadPortfolios();
+</script>
+{% endblock %}

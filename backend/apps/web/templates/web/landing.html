@@ -1,0 +1,20 @@
+{% extends "web/base.html" %}
+{% block title %}Home | Resume2Portfolio{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Turn Resume Into Portfolio</h1>
+    <p>Upload a PDF resume, edit extracted sections, and publish a shareable developer portfolio.</p>
+    <div class="row">
+      <a class="btn" href="/register/">Get Started</a>
+      <a class="btn alt" href="/login/">Login</a>
+    </div>
+  </div>
+  <aside class="card">
+    <h3>Preview</h3>
+    <p><strong>Name:</strong> John Developer</p>
+    <p><strong>Skills:</strong> Python, React, Django</p>
+    <p><strong>Project:</strong> AI Resume Portfolio Generator</p>
+  </aside>
+</section>
+{% endblock %}
