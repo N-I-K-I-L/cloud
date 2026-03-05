@@ -5,14 +5,28 @@ from apps.portfolios.models import Portfolio
 
 
 def _normalize_template_data(data: dict, username: str) -> dict:
-    data = data or {}
-    contact = data.get('contact') or {}
+    if not isinstance(data, dict):
+        data = {}
+
+    raw_contact = data.get('contact')
+    contact = raw_contact if isinstance(raw_contact, dict) else {}
+
     skills = data.get('skills') or data.get('technologies') or []
     projects = data.get('projects') or []
     education = data.get('education') or []
     experience = data.get('work_experience') or []
 
-    personal_info = data.get('personal_info') or {
+    if not isinstance(skills, list):
+        skills = []
+    if not isinstance(projects, list):
+        projects = []
+    if not isinstance(education, list):
+        education = []
+    if not isinstance(experience, list):
+        experience = []
+
+    raw_personal_info = data.get('personal_info')
+    personal_info = raw_personal_info if isinstance(raw_personal_info, dict) else {
         'full_name': data.get('name') or username,
         'title': (data.get('about') or '').split('\n')[0][:120],
         'email': contact.get('email', ''),
@@ -109,6 +123,8 @@ def public_portfolio_page(request, username):
             status=404,
         )
 
+    safe_data = portfolio.portfolio_data_json if isinstance(portfolio.portfolio_data_json, dict) else {}
+
     return render(
         request,
         'web/public_portfolio.html',
@@ -116,7 +132,7 @@ def public_portfolio_page(request, username):
             'not_found': False,
             'username': username,
             'template_id': portfolio.template_id,
-            'data': portfolio.portfolio_data_json or {},
-            'template_data': _normalize_template_data(portfolio.portfolio_data_json or {}, username),
+            'data': safe_data,
+            'template_data': _normalize_template_data(safe_data, username),
         },
     )
