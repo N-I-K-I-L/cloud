@@ -1,7 +1,19 @@
+import logging
+
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from apps.portfolios.models import Portfolio
+
+logger = logging.getLogger(__name__)
+
+def _as_text(value, default=''):
+    if value is None:
+        return default
+    if isinstance(value, str):
+        return value
+    return str(value)
 
 
 def _normalize_template_data(data: dict, username: str) -> dict:
@@ -26,12 +38,14 @@ def _normalize_template_data(data: dict, username: str) -> dict:
         experience = []
 
     raw_personal_info = data.get('personal_info')
+    about_text = _as_text(data.get('about'), '')
+    name_text = _as_text(data.get('name'), username) or username
     personal_info = raw_personal_info if isinstance(raw_personal_info, dict) else {
-        'full_name': data.get('name') or username,
-        'title': (data.get('about') or '').split('\n')[0][:120],
-        'email': contact.get('email', ''),
-        'phone': contact.get('phone', ''),
-        'location': contact.get('location', ''),
+        'full_name': name_text,
+        'title': about_text.split('\n')[0][:120],
+        'email': _as_text(contact.get('email', ''), ''),
+        'phone': _as_text(contact.get('phone', ''), ''),
+        'location': _as_text(contact.get('location', ''), ''),
     }
 
     norm_projects = []
@@ -124,15 +138,21 @@ def public_portfolio_page(request, username):
         )
 
     safe_data = portfolio.portfolio_data_json if isinstance(portfolio.portfolio_data_json, dict) else {}
+    safe_template_data = _normalize_template_data(safe_data, username)
+    safe_template_id = portfolio.template_id if portfolio.template_id else 'minimal'
 
-    return render(
-        request,
-        'web/public_portfolio.html',
-        {
-            'not_found': False,
-            'username': username,
-            'template_id': portfolio.template_id,
-            'data': safe_data,
-            'template_data': _normalize_template_data(safe_data, username),
-        },
-    )
+    context = {
+        'not_found': False,
+        'username': username,
+        'template_id': safe_template_id,
+        'data': safe_data,
+        'template_data': safe_template_data,
+    }
+    try:
+        return render(request, 'web/public_portfolio.html', context)
+    except Exception as exc:  # pragma: no cover - last-resort production fallback
+        logger.exception('Public portfolio render failed for username=%s: %s', username, exc)
+        return HttpResponse(
+            f"<h1>{_as_text(safe_data.get('name'), username)}</h1><p>Portfolio is temporarily unavailable in full view. Please try again shortly.</p>",
+            status=200,
+        )
