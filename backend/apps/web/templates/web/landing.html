@@ -1,20 +1,49 @@
 {% extends "web/base.html" %}
 {% block title %}Home | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="hero">
-  <div>
-    <h1>Turn Resume Into Portfolio</h1>
-    <p>Upload a PDF resume, edit extracted sections, and publish a shareable developer portfolio.</p>
-    <div class="row">
-      <a class="btn" href="/register/">Get Started</a>
-      <a class="btn alt" href="/login/">Login</a>
+<section class="landing-hero">
+  <div class="landing-glow landing-glow-a"></div>
+  <div class="landing-glow landing-glow-b"></div>
+  <div class="landing-grid">
+    <div class="landing-main">
+      <p class="landing-badge">AI-Powered Portfolio Builder</p>
+      <h1 class="landing-title">Turn Your Resume Into A Stunning Developer Portfolio</h1>
+      <p class="landing-subtitle">
+        Upload resume data, customize sections, choose a template, and export a ready-to-use personal website in minutes.
+      </p>
+      <div class="row">
+        <a class="btn landing-btn-primary" href="/register/">Create Portfolio</a>
+        <a class="btn alt landing-btn-secondary" href="/login/">Sign In</a>
+      </div>
     </div>
+    <aside class="landing-preview">
+      <h3>Live Preview</h3>
+      <div class="landing-preview-card">
+        <p class="landing-preview-name">John Developer</p>
+        <p class="landing-preview-role">Software Engineer • Python • React • Django</p>
+        <div class="landing-chip-row">
+          <span class="landing-chip">Portfolio Generator</span>
+          <span class="landing-chip">AI Chatbot</span>
+          <span class="landing-chip">Quiz App</span>
+        </div>
+      </div>
+      <p class="landing-muted">Export as single HTML and host anywhere.</p>
+    </aside>
   </div>
-  <aside class="card">
-    <h3>Preview</h3>
-    <p><strong>Name:</strong> John Developer</p>
-    <p><strong>Skills:</strong> Python, React, Django</p>
-    <p><strong>Project:</strong> AI Resume Portfolio Generator</p>
-  </aside>
+</section>
+
+<section class="landing-features">
+  <article class="landing-feature-card">
+    <h3>1. Upload or Enter Manually</h3>
+    <p>Use PDF parsing or fill details manually with structured fields.</p>
+  </article>
+  <article class="landing-feature-card">
+    <h3>2. Edit with Live Preview</h3>
+    <p>Refine your profile, projects, and experience with instant visual feedback.</p>
+  </article>
+  <article class="landing-feature-card">
+    <h3>3. Export & Own It</h3>
+    <p>Download a self-contained portfolio file and deploy it on your own stack.</p>
+  </article>
 </section>
 {% endblock %}
