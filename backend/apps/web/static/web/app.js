@@ -73,6 +73,41 @@ window.App = (() => {
     });
   }
 
+  async function download(url, filename = 'download.zip') {
+    const fetchWithToken = async (token) => {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      return fetch(url, { method: 'GET', headers });
+    };
+
+    let res = await fetchWithToken(getAccess());
+    if (res.status === 401 && getRefresh()) {
+      try {
+        const newAccess = await refreshAccessToken();
+        res = await fetchWithToken(newAccess);
+      } catch {
+        clearTokens();
+      }
+    }
+
+    if (!res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      const payload = contentType.includes('application/json') ? await res.json() : await res.text();
+      const err = new Error('Download failed');
+      err.payload = payload;
+      throw err;
+    }
+
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  }
+
   function requireAuth() {
     if (!getAccess()) location.href = '/login/';
   }
@@ -105,7 +140,7 @@ window.App = (() => {
   }
 
   return {
-    get, post, patch, upload,
+    get, post, patch, upload, download,
     getAccess, getRefresh, setTokens, clearTokens,
     requireAuth, updateNav, errorMessage,
   };

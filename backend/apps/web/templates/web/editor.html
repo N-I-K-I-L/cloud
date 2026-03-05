@@ -31,12 +31,11 @@
     <input id="contact_links" placeholder="Comma separated URLs" />
     <div class="row">
       <button id="save-btn" class="btn">Save</button>
-      <button id="publish-btn" class="btn alt">Publish</button>
+      <button id="export-btn" class="btn alt">Export Portfolio Files</button>
     </div>
-    <section id="publish-box" class="notice" style="display:none;">
-      <h3>Published URL</h3>
-      <p id="publish-url" class="mono"></p>
-      <button id="copy-url" class="btn">Copy Link</button>
+    <section id="export-box" class="notice" style="display:none;">
+      <h3>Export Ready</h3>
+      <p class="mono">Downloaded ZIP contains: index.html, assets/styles.css, portfolio-data.json, README.txt</p>
     </section>
   </section>
   <section class="card">
@@ -317,24 +316,15 @@
     }
   });
 
-  document.getElementById('publish-btn').addEventListener('click', async () => {
+  document.getElementById('export-btn').addEventListener('click', async () => {
     const error = document.getElementById('error');
     error.textContent = '';
     try {
       await save();
-      const res = await App.post(`/api/portfolios/${id}/publish/`, {});
-      document.getElementById('publish-url').textContent = res.public_url;
-      document.getElementById('publish-box').style.display = 'block';
+      await App.download(`/api/portfolios/${id}/export_files/`, `portfolio-${id}.zip`);
+      document.getElementById('export-box').style.display = 'block';
     } catch (err) {
-      error.textContent = App.errorMessage(err, 'Publish failed.');
-    }
-  });
-
-  document.getElementById('copy-url').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(document.getElementById('publish-url').textContent);
-    } catch {
-      document.getElementById('error').textContent = 'Could not copy link.';
+      error.textContent = App.errorMessage(err, 'Export failed.');
     }
   });
 

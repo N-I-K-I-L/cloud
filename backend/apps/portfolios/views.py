@@ -1,5 +1,12 @@
+import io
+import json
+import zipfile
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.staticfiles import finders
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import RetrieveAPIView
@@ -7,6 +14,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
 from apps.resume_parser.services import parse_resume
+from apps.web.views import _normalize_template_data
 from .models import Portfolio
 from .serializers import (
     PortfolioSerializer,
@@ -95,6 +103,57 @@ class PortfolioViewSet(
                 'username': request.user.username,
             }
         )
+
+    @action(detail=True, methods=['get'])
+    def export_files(self, request, pk=None):
+        portfolio = self.get_object()
+        data = portfolio.portfolio_data_json if isinstance(portfolio.portfolio_data_json, dict) else {}
+        template_id = portfolio.template_id or 'minimal'
+        username = request.user.username
+        template_data = _normalize_template_data(data, username)
+
+        html = render_to_string(
+            'web/export_portfolio.html',
+            {
+                'username': username,
+                'template_id': template_id,
+                'data': data,
+                'template_data': template_data,
+            },
+        )
+
+        css_path = finders.find('web/styles.css')
+        css_text = ''
+        if css_path:
+            with open(css_path, 'r', encoding='utf-8') as f:
+                css_text = f.read()
+
+        readme = (
+            "Portfolio Export\n\n"
+            "Files included:\n"
+            "- index.html\n"
+            "- assets/styles.css\n"
+            "- portfolio-data.json\n\n"
+            "How to run locally:\n"
+            "1. Extract this ZIP.\n"
+            "2. Open index.html directly in browser.\n"
+            "3. Optional: host via static server:\n"
+            "   - Python: python -m http.server 8080\n"
+            "   - Then open http://127.0.0.1:8080\n"
+        )
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr('index.html', html)
+            zf.writestr('assets/styles.css', css_text)
+            zf.writestr('portfolio-data.json', json.dumps(data, indent=2))
+            zf.writestr('README.txt', readme)
+        buffer.seek(0)
+
+        filename = f"{request.user.username}-portfolio.zip"
+        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
 
 class PublicPortfolioView(RetrieveAPIView):
