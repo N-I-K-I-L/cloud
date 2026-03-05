@@ -1,7 +1,3 @@
-import io
-import json
-import zipfile
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.staticfiles import finders
@@ -128,30 +124,14 @@ class PortfolioViewSet(
             with open(css_path, 'r', encoding='utf-8') as f:
                 css_text = f.read()
 
-        readme = (
-            "Portfolio Export\n\n"
-            "Files included:\n"
-            "- index.html\n"
-            "- assets/styles.css\n"
-            "- portfolio-data.json\n\n"
-            "How to run locally:\n"
-            "1. Extract this ZIP.\n"
-            "2. Open index.html directly in browser.\n"
-            "3. Optional: host via static server:\n"
-            "   - Python: python -m http.server 8080\n"
-            "   - Then open http://127.0.0.1:8080\n"
+        # Single-file export: inline all shared styles so user gets one portable HTML file.
+        html = html.replace(
+            '<link rel="stylesheet" href="./assets/styles.css" />',
+            f'<style>\n{css_text}\n</style>',
         )
 
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr('index.html', html)
-            zf.writestr('assets/styles.css', css_text)
-            zf.writestr('portfolio-data.json', json.dumps(data, indent=2))
-            zf.writestr('README.txt', readme)
-        buffer.seek(0)
-
-        filename = f"{request.user.username}-portfolio.zip"
-        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        filename = f"{request.user.username}-portfolio.html"
+        response = HttpResponse(html, content_type='text/html; charset=utf-8')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
 

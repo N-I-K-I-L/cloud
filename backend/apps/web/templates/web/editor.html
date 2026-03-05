@@ -31,11 +31,11 @@
     <input id="contact_links" placeholder="Comma separated URLs" />
     <div class="row">
       <button id="save-btn" class="btn">Save</button>
-      <button id="export-btn" class="btn alt">Export Portfolio Files</button>
+      <button id="export-btn" class="btn alt">Export Portfolio HTML</button>
     </div>
     <section id="export-box" class="notice" style="display:none;">
       <h3>Export Ready</h3>
-      <p class="mono">Downloaded ZIP contains: index.html, assets/styles.css, portfolio-data.json, README.txt</p>
+      <p class="mono">Downloaded single-file portfolio HTML.</p>
     </section>
   </section>
   <section class="card">
@@ -321,7 +321,7 @@
     error.textContent = '';
     try {
       await save();
-      await App.download(`/api/portfolios/${id}/export_files/`, `portfolio-${id}.zip`);
+      await App.download(`/api/portfolios/${id}/export_files/`, `portfolio-${id}.html`);
       document.getElementById('export-box').style.display = 'block';
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Export failed.');

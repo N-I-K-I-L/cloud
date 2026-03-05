@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Portfolio</title>
+  <meta name="description" content="Professional developer portfolio." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            display: ["Space Grotesk", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+          },
+          colors: {
+            ink: "#0b1020",
+            panel: "#121a30",
+            accentA: "#3b82f6",
+            accentB: "#8b5cf6",
+          },
+          boxShadow: {
+            glow: "0 0 0 1px rgba(59,130,246,.35), 0 10px 40px rgba(59,130,246,.15)",
+          },
+          keyframes: {
+            floaty: {
+              "0%,100%": { transform: "translateY(0px)" },
+              "50%": { transform: "translateY(-12px)" },
+            },
+          },
+          animation: {
+            floaty: "floaty 6s ease-in-out infinite",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background: radial-gradient(900px 400px at 10% 10%, rgba(59,130,246,.18), transparent 65%),
+                  radial-gradient(900px 400px at 90% 0%, rgba(139,92,246,.18), transparent 65%),
+                  #0b1020;
+    }
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148,163,184,.24);
+    }
+    .section-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .section-reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .nav-link.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(59,130,246,.28), rgba(139,92,246,.28));
+      border-color: rgba(99,102,241,.5);
+    }
+  </style>
+</head>
+<body class="text-slate-100 font-sans">
+  <!-- Sticky Navbar -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-ink/85 backdrop-blur-xl">
+    <nav class="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+      <a href="#home" class="font-display font-bold text-lg tracking-wide">YourName.dev</a>
+      <button id="menuBtn" class="md:hidden px-3 py-2 rounded-lg border border-slate-700">Menu</button>
+      <div id="navMenu" class="hidden md:flex items-center gap-2">
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#about">About</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#skills">Skills</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#projects">Projects</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#experience">Experience</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#education">Education</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-transparent text-slate-300" href="#contact">Contact</a>
+      </div>
+    </nav>
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-4">
+      <div class="grid grid-cols-2 gap-2">
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#about">About</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#skills">Skills</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#projects">Projects</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#experience">Experience</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#education">Education</a>
+        <a class="nav-link px-3 py-2 rounded-lg border border-slate-700 text-slate-200" href="#contact">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="home" class="max-w-6xl mx-auto px-4 md:px-6">
+    <!-- HERO -->
+    <section class="min-h-[92vh] grid md:grid-cols-2 gap-10 items-center section-reveal">
+      <div>
+        <p class="inline-flex items-center gap-2 text-sm text-slate-300 glass px-3 py-1 rounded-full mb-5">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span> Available for opportunities
+        </p>
+        <h1 class="font-display text-4xl md:text-6xl font-bold leading-tight">
+          FULL NAME
+        </h1>
+        <p class="mt-3 text-lg md:text-2xl bg-gradient-to-r from-accentA to-accentB bg-clip-text text-transparent font-semibold">
+          Role / Title
+        </p>
+        <p class="mt-5 text-slate-300 max-w-xl leading-relaxed">
+          SUMMARY: 2-4 lines about your profile, strengths, and the value you create as a developer.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#projects" class="px-5 py-3 rounded-xl bg-gradient-to-r from-accentA to-accentB hover:opacity-90 transition">View Projects</a>
+          <a href="./resume.pdf" class="px-5 py-3 rounded-xl border border-slate-600 hover:border-slate-400 transition">Download Resume</a>
+          <a href="#contact" class="px-5 py-3 rounded-xl border border-slate-600 hover:border-slate-400 transition">Contact</a>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="absolute -top-10 -left-6 w-28 h-28 rounded-full bg-accentA/25 blur-2xl animate-floaty"></div>
+        <div class="absolute -bottom-8 -right-4 w-36 h-36 rounded-full bg-accentB/25 blur-2xl animate-floaty"></div>
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-glow">
+          <div class="grid gap-4 text-sm">
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <span class="text-slate-400">Email</span>
+              <span>Email</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <span class="text-slate-400">Phone</span>
+              <span>Phone</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <span class="text-slate-400">Location</span>
+              <span>Location</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Profiles</span>
+              <span>GitHub / LinkedIn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-20 section-reveal">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8">About</h2>
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div class="glass rounded-2xl p-6 md:p-8 leading-relaxed text-slate-300">
+          I build robust web products focused on usability, performance, and maintainability.
+          I enjoy transforming ideas into polished user experiences with clean architecture.
+          I care about developer experience, scalable systems, and solving real-world problems.
+        </div>
+        <div class="glass rounded-2xl p-6 md:p-8">
+          <div class="aspect-square max-w-[320px] mx-auto rounded-2xl bg-gradient-to-br from-accentA/40 to-accentB/40 grid place-items-center text-6xl font-display font-bold">
+            FN
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="py-20 section-reveal">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8">Skills</h2>
+      <div id="skillsGrid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="py-20 section-reveal">
+      <div class="flex items-end justify-between mb-8">
+        <h2 class="font-display text-3xl md:text-4xl font-bold">Projects</h2>
+        <p class="text-slate-400 text-sm">Selected work</p>
+      </div>
+      <div id="projectsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="py-20 section-reveal">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8">Experience</h2>
+      <div id="timeline" class="relative border-l border-slate-700 ml-3 space-y-8"></div>
+    </section>
+
+    <!-- EDUCATION -->
+    <section id="education" class="py-20 section-reveal">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8">Education</h2>
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <p class="font-semibold text-lg">B.E. Electronics and Communication Engineering</p>
+        <p class="text-slate-300 mt-1">Institution Name • Years</p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-20 section-reveal">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8">Contact</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass rounded-2xl p-6 md:p-8 space-y-4">
+          <p><span class="text-slate-400">Email:</span> Email</p>
+          <p><span class="text-slate-400">Phone:</span> Phone</p>
+          <p><span class="text-slate-400">Location:</span> Location</p>
+          <p><span class="text-slate-400">GitHub:</span> GitHub</p>
+          <p><span class="text-slate-400">LinkedIn:</span> LinkedIn</p>
+        </div>
+        <form class="glass rounded-2xl p-6 md:p-8 grid gap-4">
+          <input class="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-accentA" type="text" placeholder="Your Name" />
+          <input class="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-accentA" type="email" placeholder="Your Email" />
+          <textarea class="bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-3 h-36 outline-none focus:border-accentA" placeholder="Your Message"></textarea>
+          <button type="button" class="px-5 py-3 rounded-xl bg-gradient-to-r from-accentA to-accentB hover:opacity-90 transition">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-800 py-8">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+      <p class="text-slate-400 text-sm">© <span id="year"></span> FULL NAME. All rights reserved.</p>
+      <div class="flex items-center gap-4 text-sm">
+        <a class="text-slate-300 hover:text-white" href="#">GitHub</a>
+        <a class="text-slate-300 hover:text-white" href="#">LinkedIn</a>
+        <a class="text-slate-300 hover:text-white" href="#">Portfolio</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Structured data source for reusable rendering.
+    const portfolioData = {
+      skillCategories: [
+        { title: "Programming Languages", icon: "💻", items: ["Python", "JavaScript", "SQL"] },
+        { title: "Frameworks", icon: "🧩", items: ["Django", "React", "DRF"] },
+        { title: "Tools", icon: "🛠️", items: ["Docker", "Git", "GitHub Actions"] },
+        { title: "Technologies", icon: "⚙️", items: ["TailwindCSS", "PostgreSQL", "Render"] },
+      ],
+      projects: [
+        {
+          title: "Portfolio Generator",
+          desc: "Builds customizable developer portfolios from structured resume data.",
+          stack: ["Django", "TailwindCSS", "PostgreSQL"],
+          github: "#",
+          demo: "#",
+        },
+        {
+          title: "AI Chatbot",
+          desc: "Conversational assistant with contextual memory and API integration.",
+          stack: ["Python", "JavaScript", "REST"],
+          github: "#",
+          demo: "#",
+        },
+        {
+          title: "Quiz App",
+          desc: "Interactive quiz platform with score tracking and responsive UI.",
+          stack: ["React", "Django", "SQL"],
+          github: "#",
+          demo: "#",
+        },
+      ],
+      experience: [
+        {
+          role: "Software Intern",
+          company: "Company Name",
+          duration: "YYYY - YYYY",
+          points: [
+            "Built and maintained production web features.",
+            "Improved API performance and data flow.",
+          ],
+        },
+        {
+          role: "Freelance Developer",
+          company: "Self-Employed",
+          duration: "YYYY - Present",
+          points: [
+            "Delivered portfolio and web app projects end-to-end.",
+            "Handled deployment, optimization, and client iteration cycles.",
+          ],
+        },
+      ],
+    };
+
+    const skillsGrid = document.getElementById("skillsGrid");
+    const projectsGrid = document.getElementById("projectsGrid");
+    const timeline = document.getElementById("timeline");
+
+    skillsGrid.innerHTML = portfolioData.skillCategories.map(cat => `
+      <article class="glass rounded-2xl p-5 hover:-translate-y-1 transition-transform">
+        <p class="text-xl">${cat.icon}</p>
+        <h3 class="mt-2 font-semibold">${cat.title}</h3>
+        <div class="mt-3 flex flex-wrap gap-2">
+          ${cat.items.map(item => `<span class="text-xs px-2.5 py-1 rounded-full border border-slate-600 text-slate-200">${item}</span>`).join("")}
+        </div>
+      </article>
+    `).join("");
+
+    projectsGrid.innerHTML = portfolioData.projects.map(p => `
+      <article class="glass rounded-2xl p-5 group hover:shadow-glow hover:-translate-y-1 transition-all">
+        <h3 class="font-semibold text-xl">${p.title}</h3>
+        <p class="mt-3 text-slate-300 text-sm leading-relaxed">${p.desc}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          ${p.stack.map(s => `<span class="text-xs px-2.5 py-1 rounded-full bg-slate-900/70 border border-slate-700">${s}</span>`).join("")}
+        </div>
+        <div class="mt-5 flex items-center gap-4 text-sm">
+          <a href="${p.github}" class="text-blue-300 hover:text-blue-200">GitHub</a>
+          <a href="${p.demo}" class="text-violet-300 hover:text-violet-200">Live Demo</a>
+        </div>
+      </article>
+    `).join("");
+
+    timeline.innerHTML = portfolioData.experience.map(exp => `
+      <article class="relative pl-8">
+        <span class="absolute left-[-7px] top-1 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-accentA to-accentB"></span>
+        <div class="glass rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="font-semibold text-lg">${exp.role} • ${exp.company}</h3>
+            <span class="text-xs px-2.5 py-1 rounded-full border border-slate-600 text-slate-300">${exp.duration}</span>
+          </div>
+          <ul class="mt-3 space-y-2 text-slate-300 text-sm list-disc list-inside">
+            ${exp.points.map(pt => `<li>${pt}</li>`).join("")}
+          </ul>
+        </div>
+      </article>
+    `).join("");
+
+    // Mobile menu toggle.
+    const menuBtn = document.getElementById("menuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    menuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+
+    // Active nav section highlight.
+    const sections = [...document.querySelectorAll("main section[id], main[id='home']")];
+    const navLinks = [...document.querySelectorAll(".nav-link")];
+    const setActive = (id) => {
+      navLinks.forEach(link => {
+        const isActive = link.getAttribute("href") === `#${id}`;
+        link.classList.toggle("active", isActive);
+      });
+    };
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { threshold: 0.45 });
+    sections.forEach(sec => navObserver.observe(sec));
+
+    // Fade-in on scroll animation.
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll(".section-reveal").forEach(el => revealObserver.observe(el));
+
+    // Footer year.
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
