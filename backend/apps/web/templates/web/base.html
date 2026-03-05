@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  {% load static %}
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Resume2Portfolio{% endblock %}</title>
-  <link rel="stylesheet" href="/static/web/styles.css" />
+  <link rel="stylesheet" href="{% static 'web/styles.css' %}" />
 </head>
 <body>
   <header class="topbar">
@@ -17,7 +18,7 @@
   <main class="container">
     {% block content %}{% endblock %}
   </main>
-  <script src="/static/web/app.js"></script>
+  <script src="{% static 'web/app.js' %}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
