@@ -115,7 +115,19 @@ def dashboard_page(request):
 
 
 def upload_resume_page(request):
-    return render(request, 'web/upload_resume.html')
+    return render(request, 'web/upload_resume.html', {'initial_step': 1})
+
+
+def upload_template_page(request):
+    return render(request, 'web/upload_resume.html', {'initial_step': 1})
+
+
+def upload_import_data_page(request):
+    return render(request, 'web/upload_resume.html', {'initial_step': 2})
+
+
+def upload_file_page(request):
+    return render(request, 'web/upload_resume.html', {'initial_step': 3})
 
 
 def editor_page(request, portfolio_id):

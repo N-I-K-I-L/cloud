@@ -90,7 +90,13 @@
 <script>
   App.requireAuth();
   App.updateNav();
-  let selectedTemplate = null;
+  const initialStep = Number('{{ initial_step|default:1 }}');
+  const STEP_URLS = {
+    1: '/upload-resume/template/',
+    2: '/upload-resume/import-data/',
+    3: '/upload-resume/upload/',
+  };
+  let selectedTemplate = sessionStorage.getItem('selected_template') || null;
   const stepDots = {
     1: document.querySelector('[data-step-dot="1"]'),
     2: document.querySelector('[data-step-dot="2"]'),
@@ -109,21 +115,23 @@
       document.querySelectorAll('.template-option[data-template]').forEach((b) => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedTemplate = btn.dataset.template;
+      sessionStorage.setItem('selected_template', selectedTemplate);
       document.getElementById('to-step-2').disabled = false;
     });
   });
 
-  document.getElementById('to-step-2').addEventListener('click', () => setStep(2));
-  document.getElementById('back-step-1').addEventListener('click', () => setStep(1));
-  document.getElementById('choose-upload').addEventListener('click', () => setStep(3));
-  document.getElementById('back-step-2').addEventListener('click', () => setStep(2));
-  document.getElementById('cancel-upload').addEventListener('click', () => setStep(2));
+  document.getElementById('to-step-2').addEventListener('click', () => { location.href = STEP_URLS[2]; });
+  document.getElementById('back-step-1').addEventListener('click', () => { location.href = STEP_URLS[1]; });
+  document.getElementById('choose-upload').addEventListener('click', () => { location.href = STEP_URLS[3]; });
+  document.getElementById('back-step-2').addEventListener('click', () => { location.href = STEP_URLS[2]; });
+  document.getElementById('cancel-upload').addEventListener('click', () => { location.href = STEP_URLS[2]; });
 
   document.getElementById('choose-manual').addEventListener('click', async () => {
     const error = document.getElementById('error');
     error.textContent = '';
     try {
       const created = await App.post('/api/portfolios/manual/', { template_id: selectedTemplate || 'minimal' });
+      sessionStorage.removeItem('selected_template');
       location.href = `/editor/${created.id}/`;
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Could not start manual portfolio.');
@@ -161,10 +169,25 @@
       formData.append('resume', fileInput.files[0]);
       formData.append('template_id', selectedTemplate || 'minimal');
       const created = await App.upload('/api/portfolios/upload/', formData);
+      sessionStorage.removeItem('selected_template');
       location.href = `/editor/${created.id}/`;
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Upload failed.');
     }
   });
+
+  // Keep wizard pages separate by URL while preserving selection.
+  if (selectedTemplate) {
+    const selectedButton = document.querySelector(`.template-option[data-template="${selectedTemplate}"]`);
+    if (selectedButton) {
+      selectedButton.classList.add('selected');
+      document.getElementById('to-step-2').disabled = false;
+    }
+  }
+  if (!selectedTemplate && initialStep > 1) {
+    location.href = STEP_URLS[1];
+  } else {
+    setStep(initialStep);
+  }
 </script>
 {% endblock %}

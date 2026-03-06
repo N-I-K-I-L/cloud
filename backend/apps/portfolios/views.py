@@ -1,3 +1,6 @@
+import logging
+from pathlib import Path
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.staticfiles import finders
@@ -17,6 +20,8 @@ from .serializers import (
     PortfolioUploadSerializer,
     PortfolioManualCreateSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class PortfolioViewSet(
@@ -103,37 +108,60 @@ class PortfolioViewSet(
     @action(detail=True, methods=['get'])
     def export_files(self, request, pk=None):
         portfolio = self.get_object()
-        data = portfolio.portfolio_data_json if isinstance(portfolio.portfolio_data_json, dict) else {}
-        template_id = portfolio.template_id or 'minimal'
-        username = request.user.username
-        template_data = _normalize_template_data(data, username)
+        try:
+            data = portfolio.portfolio_data_json if isinstance(portfolio.portfolio_data_json, dict) else {}
+            template_id = portfolio.template_id or 'minimal'
+            username = request.user.username
+            template_data = _normalize_template_data(data, username)
 
-        html = render_to_string(
-            'web/export_portfolio.html',
-            {
-                'username': username,
-                'template_id': template_id,
-                'data': data,
-                'template_data': template_data,
-            },
-        )
+            html = render_to_string(
+                'web/export_portfolio.html',
+                {
+                    'username': username,
+                    'template_id': template_id,
+                    'data': data,
+                    'template_data': template_data,
+                },
+            )
 
-        css_path = finders.find('web/styles.css')
-        css_text = ''
-        if css_path:
-            with open(css_path, 'r', encoding='utf-8') as f:
-                css_text = f.read()
+            css_text = ''
+            css_path = finders.find('web/styles.css')
+            if css_path and Path(css_path).exists():
+                css_text = Path(css_path).read_text(encoding='utf-8')
+            else:
+                # Fallback for production environments where static finders can vary.
+                fallback_css = (
+                    Path(__file__).resolve().parents[1]
+                    / 'web'
+                    / 'static'
+                    / 'web'
+                    / 'styles.css'
+                )
+                if fallback_css.exists():
+                    css_text = fallback_css.read_text(encoding='utf-8')
 
-        # Single-file export: inline all shared styles so user gets one portable HTML file.
-        html = html.replace(
-            '<link rel="stylesheet" href="./assets/styles.css" />',
-            f'<style>\n{css_text}\n</style>',
-        )
+            # Single-file export: inline shared styles for portable HTML output.
+            if '<link rel="stylesheet" href="./assets/styles.css" />' in html:
+                html = html.replace(
+                    '<link rel="stylesheet" href="./assets/styles.css" />',
+                    f'<style>\n{css_text}\n</style>',
+                )
 
-        filename = f"{request.user.username}-portfolio.html"
-        response = HttpResponse(html, content_type='text/html; charset=utf-8')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        return response
+            filename = f"{request.user.username}-portfolio.html"
+            response = HttpResponse(html, content_type='text/html; charset=utf-8')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        except Exception as exc:
+            logger.exception(
+                'Portfolio export failed for user=%s portfolio_id=%s: %s',
+                request.user.username,
+                portfolio.id,
+                exc,
+            )
+            return Response(
+                {'detail': f'Failed to export portfolio: {str(exc)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class PublicPortfolioView(RetrieveAPIView):
