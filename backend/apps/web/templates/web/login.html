@@ -1,14 +1,21 @@
 {% extends "web/base.html" %}
 {% block title %}Login | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="panel">
-  <h1>Login</h1>
-  <form id="login-form" class="stack">
-    <input id="username" placeholder="Username" required />
-    <input id="password" type="password" placeholder="Password" required />
-    <p id="error" class="error"></p>
-    <button type="submit" class="btn full">Login</button>
-  </form>
+<section class="auth-wrap">
+  <div class="auth-header">
+    <h2>Resume2Portfolio</h2>
+    <p>Sign in to your account</p>
+  </div>
+  <div class="auth-card">
+    <h1>Welcome back</h1>
+    <form id="login-form" class="stack">
+      <input id="username" placeholder="Username" required />
+      <input id="password" type="password" placeholder="Password" required />
+      <p id="error" class="error"></p>
+      <button type="submit" class="btn full auth-submit">Sign In</button>
+    </form>
+    <p class="auth-foot">Don't have an account? <a href="/register/">Create one</a></p>
+  </div>
 </section>
 {% endblock %}
 {% block scripts %}

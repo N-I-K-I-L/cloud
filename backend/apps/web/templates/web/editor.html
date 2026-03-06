@@ -1,14 +1,17 @@
 {% extends "web/base.html" %}
 {% block title %}Editor | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="row space-between">
-  <h1>Portfolio Editor</h1>
-  <a class="btn alt" href="/dashboard/">Back to Dashboard</a>
+<section class="row space-between editor-top">
+  <div>
+    <h1>Portfolio Editor</h1>
+    <p class="editor-subtitle">Edit your details before downloading the final source code.</p>
+  </div>
+  <a class="btn alt editor-back" href="/dashboard/">Back to Dashboard</a>
 </section>
 
 <p id="error" class="error"></p>
-<div class="grid2">
-  <section class="card stack">
+<div class="grid2 editor-grid">
+  <section class="card stack editor-form-card">
     <label for="name">Name</label>
     <input id="name" placeholder="Full name" />
     <label for="about">About</label>
@@ -30,16 +33,19 @@
     <label for="contact_links">Contact Links</label>
     <input id="contact_links" placeholder="Comma separated URLs" />
     <div class="row">
-      <button id="save-btn" class="btn">Save</button>
-      <button id="export-btn" class="btn alt">Export Portfolio HTML</button>
+      <button id="save-btn" class="btn editor-save">Save Changes</button>
+      <button id="export-btn" class="btn alt editor-download">Download Portfolio (.html)</button>
     </div>
     <section id="export-box" class="notice" style="display:none;">
       <h3>Export Ready</h3>
       <p class="mono">Downloaded single-file portfolio HTML.</p>
     </section>
   </section>
-  <section class="card">
-    <h3>Live Portfolio Preview</h3>
+  <section class="card editor-preview-card">
+    <div class="editor-preview-head">
+      <h3>Live Preview</h3>
+      <span id="preview-theme-label"></span>
+    </div>
     <div id="portfolio-preview"></div>
     <details style="margin-top: 12px;">
       <summary class="mono" style="cursor: pointer;">Show JSON (debug)</summary>
@@ -300,6 +306,7 @@
     try {
       const data = await App.get(`/api/portfolios/${id}/`);
       templateId = data.template_id;
+      document.getElementById('preview-theme-label').textContent = `${templateId} theme`;
       fillForm(normalize(data.portfolio_data_json || {}));
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Failed to load portfolio.');

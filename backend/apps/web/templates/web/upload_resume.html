@@ -1,62 +1,169 @@
 {% extends "web/base.html" %}
 {% block title %}Upload Resume | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="panel">
-  <h1>Upload Resume</h1>
-  <form id="upload-form" class="stack">
-    <label for="template_id">Choose Template (used for both PDF and Manual Entry)</label>
-    <select id="template_id">
-      <option value="minimal">Minimal Developer Template</option>
-      <option value="professional">Professional Template</option>
-      <option value="creative">Creative Template</option>
-      <option value="dark">Dark Developer Theme</option>
-      <option value="cards">Modern Card Layout</option>
-    </select>
+<section class="wizard-wrap">
+  <div class="wizard-steps">
+    <div class="wizard-step active" data-step-dot="1"><span>1</span> Template</div>
+    <div class="wizard-line"></div>
+    <div class="wizard-step" data-step-dot="2"><span>2</span> Import Data</div>
+    <div class="wizard-line"></div>
+    <div class="wizard-step" data-step-dot="3"><span>3</span> Upload</div>
+  </div>
 
-    <label for="resume">Upload PDF (optional)</label>
-    <input id="resume" type="file" accept="application/pdf" />
-    <p id="error" class="error"></p>
-    <button type="submit" class="btn full">Create from PDF</button>
-    <button type="button" id="manual-btn" class="btn alt full">No PDF? Create Manual Portfolio</button>
-  </form>
+  <div class="wizard-card" id="step-1">
+    <h1 class="wizard-title">Choose a Template</h1>
+    <p class="wizard-subtitle">Select the starting design for your developer portfolio.</p>
+    <div class="template-grid">
+      <button class="template-option" data-template="dark" type="button">
+        <div class="template-icon">🖥</div>
+        <h3>Premium Dark</h3>
+        <p>Modern, full-screen dark theme for developers.</p>
+      </button>
+      <button class="template-option" data-template="minimal" type="button">
+        <div class="template-icon">▦</div>
+        <h3>Minimal Clean</h3>
+        <p>Simple, readable, and professional layout.</p>
+      </button>
+      <button class="template-option" data-template="cards" type="button">
+        <div class="template-icon">▤</div>
+        <h3>Card Layout</h3>
+        <p>Colorful and vibrant card-based grid design.</p>
+      </button>
+      <button class="template-option" data-template="terminal" type="button">
+        <div class="template-icon">⌨</div>
+        <h3>Hacker CLI</h3>
+        <p>Green-on-black retro command line interface.</p>
+      </button>
+      <button class="template-option" data-template="robotic" type="button">
+        <div class="template-icon">⚙</div>
+        <h3>Cyberpunk Mode</h3>
+        <p>Futuristic, neon-grid sci-fi robotic blueprint.</p>
+      </button>
+    </div>
+    <div class="wizard-actions">
+      <button id="to-step-2" class="btn wizard-primary" type="button" disabled>Continue</button>
+    </div>
+  </div>
+
+  <div class="wizard-card hidden" id="step-2">
+    <button id="back-step-1" class="btn wizard-back" type="button">← Back to Templates</button>
+    <h1 class="wizard-title">How do you want to start?</h1>
+    <p class="wizard-subtitle">We can instantly generate your portfolio from a PDF resume.</p>
+    <div class="import-grid">
+      <button id="choose-upload" class="template-option" type="button">
+        <div class="template-icon">📄</div>
+        <h3>Upload PDF Resume</h3>
+        <p>Automatically extract your skills, experience, and projects.</p>
+        <span class="template-link">Continue →</span>
+      </button>
+      <button id="choose-manual" class="template-option" type="button">
+        <div class="template-icon">✎</div>
+        <h3>Enter Manually</h3>
+        <p>Start with a blank slate and fill details yourself.</p>
+        <span class="template-link">Continue →</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="wizard-card hidden" id="step-3">
+    <button id="back-step-2" class="btn wizard-back" type="button">← Back</button>
+    <h1 class="wizard-title">Upload your Resume</h1>
+    <p class="wizard-subtitle">Upload standard PDF formats for best extraction results.</p>
+    <form id="upload-form" class="stack">
+      <label id="dropzone" class="upload-zone" for="resume">
+        <div class="upload-icon">📄</div>
+        <p>Click to upload or drag and drop</p>
+        <small>PDF (max. 10MB)</small>
+        <span id="file-name" class="file-name"></span>
+      </label>
+      <input id="resume" type="file" accept="application/pdf" hidden />
+      <p id="error" class="error"></p>
+      <div class="wizard-actions">
+        <button id="cancel-upload" class="btn wizard-cancel" type="button">Cancel</button>
+        <button id="submit-upload" class="btn wizard-primary" type="submit">Generate Portfolio</button>
+      </div>
+    </form>
+  </div>
 </section>
 {% endblock %}
 {% block scripts %}
 <script>
   App.requireAuth();
   App.updateNav();
+  let selectedTemplate = null;
+  const stepDots = {
+    1: document.querySelector('[data-step-dot="1"]'),
+    2: document.querySelector('[data-step-dot="2"]'),
+    3: document.querySelector('[data-step-dot="3"]'),
+  };
+
+  function setStep(step) {
+    [1, 2, 3].forEach((n) => {
+      document.getElementById(`step-${n}`).classList.toggle('hidden', n !== step);
+      stepDots[n].classList.toggle('active', n <= step);
+    });
+  }
+
+  document.querySelectorAll('.template-option[data-template]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.template-option[data-template]').forEach((b) => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedTemplate = btn.dataset.template;
+      document.getElementById('to-step-2').disabled = false;
+    });
+  });
+
+  document.getElementById('to-step-2').addEventListener('click', () => setStep(2));
+  document.getElementById('back-step-1').addEventListener('click', () => setStep(1));
+  document.getElementById('choose-upload').addEventListener('click', () => setStep(3));
+  document.getElementById('back-step-2').addEventListener('click', () => setStep(2));
+  document.getElementById('cancel-upload').addEventListener('click', () => setStep(2));
+
+  document.getElementById('choose-manual').addEventListener('click', async () => {
+    const error = document.getElementById('error');
+    error.textContent = '';
+    try {
+      const created = await App.post('/api/portfolios/manual/', { template_id: selectedTemplate || 'minimal' });
+      location.href = `/editor/${created.id}/`;
+    } catch (err) {
+      error.textContent = App.errorMessage(err, 'Could not start manual portfolio.');
+    }
+  });
+
+  const fileInput = document.getElementById('resume');
+  const fileName = document.getElementById('file-name');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    fileName.textContent = file ? file.name : '';
+  });
+
+  const dropzone = document.getElementById('dropzone');
+  ['dragenter', 'dragover'].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      fileInput.files = e.dataTransfer.files;
+      fileName.textContent = file.name;
+    }
+  });
 
   document.getElementById('upload-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const error = document.getElementById('error');
     error.textContent = '';
-
     try {
-      const fileInput = document.getElementById('resume');
       if (!fileInput.files || !fileInput.files[0]) {
-        error.textContent = 'Select a PDF or use "No PDF? Enter Manually".';
+        error.textContent = 'Please choose a PDF file first.';
         return;
       }
       const formData = new FormData();
       formData.append('resume', fileInput.files[0]);
-      formData.append('template_id', document.getElementById('template_id').value);
+      formData.append('template_id', selectedTemplate || 'minimal');
       const created = await App.upload('/api/portfolios/upload/', formData);
       location.href = `/editor/${created.id}/`;
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Upload failed.');
-    }
-  });
-
-  document.getElementById('manual-btn').addEventListener('click', async () => {
-    const error = document.getElementById('error');
-    error.textContent = '';
-    try {
-      const created = await App.post('/api/portfolios/manual/', {
-        template_id: document.getElementById('template_id').value,
-      });
-      location.href = `/editor/${created.id}/`;
-    } catch (err) {
-      error.textContent = App.errorMessage(err, 'Could not start manual portfolio.');
     }
   });
 </script>

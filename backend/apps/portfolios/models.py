@@ -7,6 +7,8 @@ class Portfolio(models.Model):
         ('minimal', 'Minimal Developer Template'),
         ('dark', 'Dark Developer Theme'),
         ('cards', 'Modern Card Layout'),
+        ('terminal', 'Terminal Theme'),
+        ('robotic', 'Robotic Theme'),
         ('professional', 'Professional Template'),
         ('creative', 'Creative Template'),
     ]

@@ -1,19 +1,18 @@
 {% extends "web/base.html" %}
 {% block title %}Dashboard | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="row space-between">
-  <h1>Dashboard</h1>
-  <a class="btn" href="/upload-resume/">Create New Portfolio</a>
-</section>
+<section class="dashboard-wrap">
+  <section class="row space-between dashboard-head">
+    <div>
+      <h1>Your Portfolios</h1>
+      <p>Manage and export your developer portfolios.</p>
+    </div>
+    <a class="btn dashboard-create" href="/upload-resume/">+ Create New Portfolio</a>
+  </section>
 
-<section id="publish-box" class="notice" style="display:none;">
-  <h3>Published URL</h3>
-  <p id="publish-url" class="mono"></p>
-  <button id="copy-url" class="btn">Copy Link</button>
+  <p id="error" class="error"></p>
+  <div id="portfolio-list" class="stack dashboard-list"></div>
 </section>
-
-<p id="error" class="error"></p>
-<div id="portfolio-list" class="stack"></div>
 {% endblock %}
 {% block scripts %}
 <script>
@@ -22,8 +21,29 @@
 
   const list = document.getElementById('portfolio-list');
   const error = document.getElementById('error');
-  const publishBox = document.getElementById('publish-box');
-  const publishUrl = document.getElementById('publish-url');
+
+  const templateLabelMap = {
+    minimal: 'Minimal Theme',
+    dark: 'Premium Dark',
+    cards: 'Cards Theme',
+    terminal: 'Terminal Theme',
+    robotic: 'Robotic Theme',
+    professional: 'Professional Theme',
+    creative: 'Creative Theme',
+  };
+
+  function fmtDate(value) {
+    try {
+      return new Date(value).toLocaleDateString();
+    } catch {
+      return value || '';
+    }
+  }
+
+  function initialFromTemplate(templateId) {
+    const id = (templateId || '').trim();
+    return id ? id[0].toUpperCase() : 'P';
+  }
 
   async function loadPortfolios() {
     error.textContent = '';
@@ -31,34 +51,36 @@
     try {
       const items = await App.get('/api/portfolios/');
       if (!items.length) {
-        list.innerHTML = '<p>No portfolios yet. Upload a resume to start.</p>';
+        list.innerHTML = '<p class="dashboard-empty">No portfolios yet. Create one to get started.</p>';
         return;
       }
       items.forEach((item) => {
         const div = document.createElement('div');
-        div.className = 'card';
+        const templateName = templateLabelMap[item.template_id] || item.template_id;
+        const dateText = fmtDate(item.updated_at);
+        div.className = 'dashboard-item';
         div.innerHTML = `
-          <p><strong>Template:</strong> ${item.template_id}</p>
-          <p><strong>Last Modified:</strong> ${new Date(item.updated_at).toLocaleString()}</p>
-          <p><strong>Status:</strong> ${item.is_published ? 'Published' : 'Draft'}</p>
-          <div class="row">
-            <a class="btn" href="/editor/${item.id}/">Edit</a>
-            <a class="btn alt" href="/portfolio/${item.username}/" target="_blank">View</a>
-            ${!item.is_published ? `<button class="btn publish-btn" data-id="${item.id}">Publish</button>` : ''}
+          <div class="dashboard-item-left">
+            <div class="dashboard-avatar">${initialFromTemplate(item.template_id)}</div>
+            <div>
+              <p class="dashboard-item-title">${templateName}</p>
+              <p class="dashboard-item-sub">◷ Updated ${dateText}</p>
+            </div>
+          </div>
+          <div class="row dashboard-item-actions">
+            <a class="btn dashboard-edit" href="/editor/${item.id}/">✎ Edit Details</a>
+            <button class="btn dashboard-export export-btn" data-id="${item.id}">↧ Export</button>
           </div>
         `;
         list.appendChild(div);
       });
 
-      document.querySelectorAll('.publish-btn').forEach((btn) => {
+      document.querySelectorAll('.export-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
           try {
-            const res = await App.post(`/api/portfolios/${btn.dataset.id}/publish/`, {});
-            publishUrl.textContent = res.public_url;
-            publishBox.style.display = 'block';
-            await loadPortfolios();
+            await App.download(`/api/portfolios/${btn.dataset.id}/export_files/`, `portfolio-${btn.dataset.id}.html`);
           } catch (err) {
-            error.textContent = App.errorMessage(err, 'Failed to publish portfolio.');
+            error.textContent = App.errorMessage(err, 'Failed to export portfolio.');
           }
         });
       });
@@ -66,14 +88,6 @@
       error.textContent = App.errorMessage(err, 'Failed to load portfolios.');
     }
   }
-
-  document.getElementById('copy-url').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(publishUrl.textContent);
-    } catch {
-      error.textContent = 'Could not copy link.';
-    }
-  });
 
   loadPortfolios();
 </script>

@@ -1,36 +1,48 @@
 {% extends "web/base.html" %}
 {% block title %}Home | Resume2Portfolio{% endblock %}
 {% block content %}
-<section class="landing-hero">
-  <div class="landing-glow landing-glow-a"></div>
-  <div class="landing-glow landing-glow-b"></div>
-  <div class="landing-grid">
-    <div class="landing-main landing-main-full">
-      <p class="landing-badge">AI-Powered Portfolio Builder</p>
-      <h1 class="landing-title">Turn Your Resume Into A Stunning Developer Portfolio</h1>
-      <p class="landing-subtitle">
-        Upload resume data, customize sections, choose a template, and export a ready-to-use personal website in minutes.
-      </p>
-      <div class="row">
-        <a class="btn landing-btn-primary" href="/register/">Create Portfolio</a>
-        <a class="btn alt landing-btn-secondary" href="/login/">Sign In</a>
-      </div>
+<section class="marketing-wrap">
+  <section class="marketing-hero">
+    <p class="marketing-badge">★ AI-POWERED PORTFOLIO GENERATOR</p>
+    <h1><span>Resume2Portfolio</span><br />Turn Your Resume Into a<br /><span>Portfolio That Wows</span></h1>
+    <p class="marketing-lead">
+      Upload your PDF resume, pick a stunning template, and download a fully self-contained HTML portfolio —
+      ready to deploy anywhere in minutes.
+    </p>
+    <div class="row marketing-actions">
+      <a class="btn marketing-primary" href="/register/">Get Started Free →</a>
+      <a class="btn marketing-secondary" href="/login/">Login to Dashboard</a>
     </div>
-  </div>
-</section>
+    <p class="marketing-muted">5 CREATIVE TEMPLATES</p>
+  </section>
 
-<section class="landing-features">
-  <article class="landing-feature-card">
-    <h3>1. Upload or Enter Manually</h3>
-    <p>Use PDF parsing or fill details manually with structured fields.</p>
-  </article>
-  <article class="landing-feature-card">
-    <h3>2. Edit with Live Preview</h3>
-    <p>Refine your profile, projects, and experience with instant visual feedback.</p>
-  </article>
-  <article class="landing-feature-card">
-    <h3>3. Export & Own It</h3>
-    <p>Download a self-contained portfolio file and deploy it on your own stack.</p>
-  </article>
+  <section class="marketing-features">
+    <h2>Everything You Need</h2>
+    <p class="marketing-sub">From PDF to deployed portfolio in under 5 minutes.</p>
+    <div class="marketing-grid">
+      <article class="marketing-card">
+        <h3>AI-Powered Parsing</h3>
+        <p>Upload your PDF resume and our AI extracts every detail automatically — no manual copy-paste.</p>
+      </article>
+      <article class="marketing-card">
+        <h3>5 Creative Templates</h3>
+        <p>Choose from Terminal CLI, Cyberpunk, Premium Dark, Minimal, and Cards — all fully personalized.</p>
+      </article>
+      <article class="marketing-card">
+        <h3>Download & Self-Deploy</h3>
+        <p>Get a single self-contained HTML file. Drop it on Netlify or GitHub Pages in seconds.</p>
+      </article>
+      <article class="marketing-card">
+        <h3>No Lock-in</h3>
+        <p>You own your portfolio completely. Edit, host anywhere, or hand-code further — total freedom.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="marketing-cta">
+    <h2>Ready to build your portfolio?</h2>
+    <p>Join hundreds of developers who've already shipped their portfolio.</p>
+    <a class="btn marketing-primary" href="/register/">Start for Free — No Credit Card</a>
+  </section>
 </section>
 {% endblock %}

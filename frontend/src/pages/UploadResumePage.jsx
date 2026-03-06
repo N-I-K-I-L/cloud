@@ -43,6 +43,8 @@ export default function UploadResumePage() {
           <option value="minimal">Minimal Developer Template</option>
           <option value="dark">Dark Developer Theme</option>
           <option value="cards">Modern Card Layout</option>
+          <option value="terminal">Terminal Theme</option>
+          <option value="robotic">Robotic Theme</option>
         </select>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button disabled={loading} type="submit" className="w-full">

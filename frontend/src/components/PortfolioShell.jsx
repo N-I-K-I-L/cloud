@@ -4,6 +4,8 @@ const styles = {
   minimal: 'bg-white text-slate-900',
   dark: 'bg-slate-900 text-slate-100',
   cards: 'bg-gradient-to-br from-cyan-50 to-orange-50 text-slate-900',
+  terminal: 'bg-black text-green-500',
+  robotic: 'bg-slate-950 text-cyan-50',
 };
 
 export default function PortfolioShell({ templateId, children }) {
