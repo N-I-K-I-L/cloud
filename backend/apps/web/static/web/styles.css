@@ -259,6 +259,9 @@ input, select, textarea {
   grid-template-columns: 1.2fr 1fr;
   gap: 22px;
 }
+.landing-main-full {
+  max-width: 920px;
+}
 .landing-badge {
   display: inline-block;
   margin: 0 0 14px;
