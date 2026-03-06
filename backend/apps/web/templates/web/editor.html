@@ -227,7 +227,7 @@
     if (mode === 'creative') {
       return renderCreative(data);
     }
-    if (mode === 'dark' || mode === 'cards' || mode === 'minimal') {
+    if (mode === 'dark' || mode === 'cards' || mode === 'minimal' || mode === 'terminal' || mode === 'robotic') {
       return renderMinimalLike(data, mode);
     }
     return renderMinimalLike(data, 'minimal');
@@ -307,6 +307,9 @@
       const data = await App.get(`/api/portfolios/${id}/`);
       templateId = data.template_id;
       document.getElementById('preview-theme-label').textContent = `${templateId} theme`;
+      const isManualEntry = !data.resume_file;
+      document.querySelector('.editor-preview-card').style.display = isManualEntry ? 'none' : '';
+      document.querySelector('.editor-grid').classList.toggle('single-column', isManualEntry);
       fillForm(normalize(data.portfolio_data_json || {}));
     } catch (err) {
       error.textContent = App.errorMessage(err, 'Failed to load portfolio.');

@@ -55,6 +55,7 @@ p { line-height: 1.6; }
 .stack { display: grid; gap: 10px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid2 > * { min-width: 0; }
+.editor-grid.single-column { grid-template-columns: 1fr; }
 
 input, select, textarea {
   width: 100%;
@@ -117,6 +118,27 @@ input, select, textarea {
 .public.minimal { background: #ffffff; color: #111827; border-radius: 16px; padding: 20px; }
 .public.dark { background: #020617; color: #e2e8f0; border-radius: 16px; padding: 20px; }
 .public.cards { background: linear-gradient(120deg, #ecfeff, #fff7ed); color: #111827; border-radius: 16px; padding: 20px; }
+.public.terminal {
+  background: #020c02;
+  color: #86efac;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #14532d;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+}
+.public.terminal h1,
+.public.terminal h2,
+.public.terminal h3 { color: #22c55e; }
+.public.robotic {
+  background: radial-gradient(circle at top right, rgba(0, 255, 255, 0.12), #020617 45%, rgba(37, 99, 235, 0.16));
+  color: #bae6fd;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+.public.robotic h1,
+.public.robotic h2,
+.public.robotic h3 { color: #22d3ee; }
 
 .pro-wrap {
   max-width: 1100px;

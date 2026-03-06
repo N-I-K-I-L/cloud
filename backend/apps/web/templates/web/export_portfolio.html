@@ -58,7 +58,7 @@
             <div class="pro-grid">
               {% for proj in template_data.projects %}
                 <article class="proj-card">
-                  <h3>{{ proj.name }}</h3>
+                  <h3>{% firstof proj.name proj.title "Project" %}</h3>
                   <p>{{ proj.description }}</p>
                 </article>
               {% empty %}
@@ -112,7 +112,7 @@
               <div class="pro-grid">
                 {% for proj in template_data.projects %}
                   <article class="creative-card">
-                    <h4>{{ proj.name }}</h4>
+                    <h4>{% firstof proj.name proj.title "Project" %}</h4>
                     <p>{{ proj.description }}</p>
                   </article>
                 {% empty %}
@@ -135,7 +135,7 @@
         <div class="stack">
           {% for project in data.projects %}
             <div class="card">
-              <h3>{{ project.title|default:project.name }}</h3>
+              <h3>{% firstof project.title project.name "Project" %}</h3>
               <p>{{ project.description }}</p>
             </div>
           {% empty %}

@@ -40,9 +40,6 @@
         <p>Futuristic, neon-grid sci-fi robotic blueprint.</p>
       </button>
     </div>
-    <div class="wizard-actions">
-      <button id="to-step-2" class="btn wizard-primary" type="button" disabled>Continue</button>
-    </div>
   </div>
 
   <div class="wizard-card hidden" id="step-2">
@@ -116,11 +113,10 @@
       btn.classList.add('selected');
       selectedTemplate = btn.dataset.template;
       sessionStorage.setItem('selected_template', selectedTemplate);
-      document.getElementById('to-step-2').disabled = false;
+      location.href = STEP_URLS[2];
     });
   });
 
-  document.getElementById('to-step-2').addEventListener('click', () => { location.href = STEP_URLS[2]; });
   document.getElementById('back-step-1').addEventListener('click', () => { location.href = STEP_URLS[1]; });
   document.getElementById('choose-upload').addEventListener('click', () => { location.href = STEP_URLS[3]; });
   document.getElementById('back-step-2').addEventListener('click', () => { location.href = STEP_URLS[2]; });
@@ -181,7 +177,6 @@
     const selectedButton = document.querySelector(`.template-option[data-template="${selectedTemplate}"]`);
     if (selectedButton) {
       selectedButton.classList.add('selected');
-      document.getElementById('to-step-2').disabled = false;
     }
   }
   if (!selectedTemplate && initialStep > 1) {
